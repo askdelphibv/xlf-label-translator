@@ -12,14 +12,16 @@ namespace label_translator.Engine
             foreach (string language in state.DataPerLanguage.Keys)
             {
                 System.Diagnostics.Trace.TraceInformation($"Loading labels for {language} from {state.DataPerLanguage[language].XlifFile.Name}");
-                LoadLabelsForLanguage(options, state.DataPerLanguage[language]);
+                LoadLabelsForLanguage(options, state, language, state.DataPerLanguage[language]);
             }
 
             await Task.FromResult(0);
         }
 
-        private static void LoadLabelsForLanguage(Options options, LanguageData languageData)
+        private static void LoadLabelsForLanguage(Options options, State state, string language, LanguageData languageData)
         {
+            bool isDefaultLanguage = string.Equals(language, options.SourceLanguage, StringComparison.InvariantCultureIgnoreCase);
+
             XmlElement[] labelElements = languageData.XmlDocument.SelectNodes($"//doc:trans-unit", languageData.NamespaceManager).OfType<XmlElement>().ToArray();
 
             foreach (XmlElement labelElement in labelElements)
@@ -35,11 +37,32 @@ namespace label_translator.Engine
 
                 if (!string.IsNullOrWhiteSpace(label.Source) && !string.IsNullOrWhiteSpace(label.ID))
                 {
-                    languageData.Labels.Add(label.ID, label);
+                    languageData.Labels[label.ID] = label;
+
+                    AddLabelToAllOtherLanguages(state, language, isDefaultLanguage, label);
                 }
             }
 
             System.Diagnostics.Trace.TraceInformation($"Loaded {languageData.Labels.Count()} label(s) from XML.");
+        }
+
+        private static void AddLabelToAllOtherLanguages(State state, string language, bool isDefaultLanguage, Label label)
+        {
+            if (isDefaultLanguage)
+            {
+                foreach (var languageKVP in state.DataPerLanguage.Where(x => x.Key != language))
+                {
+                    if (!languageKVP.Value.Labels.ContainsKey(label.ID))
+                    {
+                        languageKVP.Value.Labels[label.ID] = new Label
+                        {
+                            ID = label.ID,
+                            Source = label.Source,
+                            Target = string.Empty
+                        };
+                    }
+                }
+            }
         }
     }
 }
