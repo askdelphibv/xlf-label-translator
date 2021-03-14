@@ -41,7 +41,7 @@ namespace label_translator.Engine
         {
             foreach (var translatedLabel in state.LabelsToBeTranslatedPerLangauge[language])
             {
-                UpdateLabelInXLF(language, languageData, translatedLabel);
+                UpdateLabelInXlf(language, languageData, translatedLabel);
             }
         }
 
@@ -50,11 +50,11 @@ namespace label_translator.Engine
         {
             foreach (var labelOverride in state.DataPerLanguage[language].Labels.Values.Where(l => l.HasOverrideInExcelFile))
             {
-                UpdateLabelInXLF(language, languageData, labelOverride);
+                UpdateLabelInXlf(language, languageData, labelOverride);
             }
         }
 
-        private static void UpdateLabelInXLF(string language, LanguageData languageData, Label translation)
+        private static void UpdateLabelInXlf(string language, LanguageData languageData, Label translation)
         {
             XmlElement labelElement = languageData.XmlDocument.SelectSingleNode($"//doc:trans-unit[@id='{translation.ID}']", languageData.NamespaceManager) as XmlElement;
             if (null != labelElement)
@@ -72,9 +72,27 @@ namespace label_translator.Engine
             }
             else
             {
-                Trace.TraceError($"I have a translation for label {translation.ID} in language {language} but I can't find the XML element anymore.");
+                Trace.TraceInformation($"I have a translation for label {translation.ID} in language {language} but I can't find the XML element. Adding missing label.");
+
+                AddAdditionalLabelToXlfDocument(languageData, translation);
             }
         }
 
+        private static void AddAdditionalLabelToXlfDocument(LanguageData languageData, Label translation)
+        {
+            XmlElement transUnitElt = languageData.XmlDocument.CreateElement("trans-unit");
+            transUnitElt.SetAttribute("id", translation.ID);
+
+            XmlElement sourceElement = languageData.XmlDocument.CreateElement("source");
+            sourceElement.InnerXml = translation.Source;
+            transUnitElt.AppendChild(sourceElement);
+
+            XmlElement targetElement = languageData.XmlDocument.CreateElement("target");
+            targetElement.InnerXml = translation.Target;
+            transUnitElt.AppendChild(targetElement);
+
+            XmlElement bodyElement = languageData.XmlDocument.SelectSingleNode($"//doc:body", languageData.NamespaceManager) as XmlElement;
+            bodyElement.AppendChild(transUnitElt);
+        }
     }
 }
