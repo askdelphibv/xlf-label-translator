@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "label-translator": {
+      "commandName": "Project",
+      "commandLineArgs": "--folder C:\\scratch\\label-test\\ --base-file messages.xlf --source-language en-US --translation-key cd1f92eb979f41408f896fbd575673fb --verbose"
+    }
+  }
+}
