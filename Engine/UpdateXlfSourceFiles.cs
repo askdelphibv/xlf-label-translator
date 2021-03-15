@@ -63,6 +63,7 @@ namespace label_translator.Engine
                 {
                     var targetElement = labelElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "target");
                     targetElement.InnerXml = translation.Target;
+                    targetElement.SetAttribute("state", "final");
                 }
                 catch (Exception ex)
                 {
@@ -89,7 +90,9 @@ namespace label_translator.Engine
 
             XmlElement targetElement = languageData.XmlDocument.CreateElement("target");
             targetElement.InnerXml = translation.Target;
+            targetElement.SetAttribute("state", "final");
             transUnitElt.AppendChild(targetElement);
+
 
             XmlElement bodyElement = languageData.XmlDocument.SelectSingleNode($"//doc:body", languageData.NamespaceManager) as XmlElement;
             bodyElement.AppendChild(transUnitElt);
