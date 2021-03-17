@@ -23,11 +23,11 @@ namespace label_translator.Engine
                 return;
             }
 
-            foreach (string languageCode in state.LabelsToBeTranslatedPerLangauge.Keys)
+            foreach (string languageCode in state.LabelsToBeTranslatedPerLanguage.Keys)
             {
                 if (!string.IsNullOrWhiteSpace(GetAzureTargetLanguageCodeFor(languageCode)))
                 {
-                    await TranslateAllFor(options, state, languageCode, state.LabelsToBeTranslatedPerLangauge[languageCode]);
+                    await TranslateAllFor(options, state, languageCode, state.LabelsToBeTranslatedPerLanguage[languageCode]);
                 }
                 else
                 {

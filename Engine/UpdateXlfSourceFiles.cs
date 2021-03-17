@@ -46,7 +46,7 @@ namespace label_translator.Engine
 
         private static void OverwriteMachineTranslatedLabels(State state, string language, LanguageData languageData)
         {
-            foreach (var translatedLabel in state.LabelsToBeTranslatedPerLangauge[language])
+            foreach (var translatedLabel in state.LabelsToBeTranslatedPerLanguage[language])
             {
                 UpdateLabelInXlf(language, languageData, translatedLabel);
             }
@@ -117,7 +117,7 @@ namespace label_translator.Engine
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceError($"Failed to set '{translation.Target}' as InnerXML for label {translation.ID} in language {language}: {ex.GetType().Name}; {ex.Message}");
+                    Trace.TraceError($"Failed to set source '{translation.Source}' as InnerXML for label {translation.ID} in language {language}: {ex.GetType().Name}; {ex.Message}");
                     // Trace.TraceInformation($"{ex}");
                 }
             }

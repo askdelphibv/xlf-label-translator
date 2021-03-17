@@ -18,9 +18,9 @@ namespace label_translator.Engine
 
             using (ExcelPackage package = new ExcelPackage(fi))
             {
-                foreach (var language in state.LabelsToBeTranslatedPerLangauge.Keys)
+                foreach (var language in state.LabelsToBeTranslatedPerLanguage.Keys)
                 {
-                    await AddWorksheet(options, state, language, state.LabelsToBeTranslatedPerLangauge[language], package);
+                    await AddWorksheet(options, state, language, state.LabelsToBeTranslatedPerLanguage[language], package);
                 }
 
                 await package.SaveAsync();

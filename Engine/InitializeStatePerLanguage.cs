@@ -26,21 +26,41 @@ namespace label_translator.Engine
                 string language = ExtractLanguageComponentFromFilename(basename, file);
                 if (!string.IsNullOrWhiteSpace(language))
                 {
-                    LanguageData languageData = new LanguageData();
-                    languageData.XlifFile = file;
-                    languageData.XmlDocument = new XmlDocument();
-                    languageData.XmlDocument.Load(file.FullName);
-                    XmlNamespaceManager nsmgr = new XmlNamespaceManager(languageData.XmlDocument.NameTable);
-                    nsmgr.AddNamespace("doc", languageData.XmlDocument.DocumentElement.NamespaceURI);
-                    languageData.NamespaceManager = nsmgr;
-
-                    state.DataPerLanguage[language] = languageData;
-
-                    state.LabelsToBeTranslatedPerLangauge[language] = new List<Label>();
+                    InitializeDataBlocksFromFileInfo(state, file, language);
                 }
             }
 
+            if (!state.DataPerLanguage.ContainsKey(options.SourceLanguage))
+            {
+                FileInfo file = new FileInfo(Path.Combine(sourceDirectoryInfo.FullName, $"{basename}.{options.SourceLanguage}.xlf"));
+                InitializeDataBlocksFromFileInfo(state, file, options.SourceLanguage);
+            }
+
+            state.SourceLabels = state.DataPerLanguage[options.SourceLanguage].Labels;
+
             await Task.FromResult(0);
+        }
+
+        private static void InitializeDataBlocksFromFileInfo(State state, FileInfo file, string language)
+        {
+            LanguageData languageData = new LanguageData();
+            languageData.XlifFile = file;
+            languageData.XmlDocument = new XmlDocument();
+            if (file.Exists)
+            {
+                languageData.XmlDocument.Load(file.FullName);
+            }
+            else
+            {
+                languageData.XmlDocument.LoadXml($"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xliff version=\"1.2\"><file datatype=\"plaintext\" source-language=\"{language}\"><body></body></file></xliff>");
+            }
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(languageData.XmlDocument.NameTable);
+            nsmgr.AddNamespace("doc", languageData.XmlDocument.DocumentElement.NamespaceURI);
+            languageData.NamespaceManager = nsmgr;
+
+            state.DataPerLanguage[language] = languageData;
+
+            state.LabelsToBeTranslatedPerLanguage[language] = new List<Label>();
         }
 
         private static string ExtractLanguageComponentFromFilename(string basename, FileInfo file)
