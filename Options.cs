@@ -26,5 +26,8 @@ namespace label_translator
 
         [Option('k', "translation-key", Required = false, HelpText = "Cognitive services key.")]
         public string CsAPIKey { get; set; }
+
+        [Option('q', "fix-source", Required = false, HelpText = "Overwrite source elements with the source from the original language file.")]
+        public bool FixSource { get; set; }
     }
 }

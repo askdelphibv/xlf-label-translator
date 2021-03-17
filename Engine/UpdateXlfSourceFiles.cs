@@ -28,8 +28,15 @@ namespace label_translator.Engine
                 // Let's back up the original.
                 File.Copy(languageData.XlifFile.FullName, Path.Combine(backupFolder, languageData.XlifFile.Name));
 
+                // Apply automatic translations and then the manual translations
                 OverwriteMachineTranslatedLabels(state, language, languageData);
                 OverwriteLAbelsWithExcelOverrides(state, language, languageData);
+                
+                // If requested, fix the source elements in the translation files
+                if (options.FixSource && !string.Equals(language, options.SourceLanguage, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    FixSourceElements(state, language, languageData);
+                }
 
                 languageData.XmlDocument.Save(languageData.XlifFile.FullName);
             }
@@ -54,6 +61,14 @@ namespace label_translator.Engine
             }
         }
 
+        private static void FixSourceElements(State state, string language, LanguageData languageData)
+        {
+            foreach (var translatedLabel in state.DataPerLanguage[language].Labels?.Values)
+            {
+                OverwriteLabelSource(language, languageData, translatedLabel);
+            }
+        }
+
         private static void UpdateLabelInXlf(string language, LanguageData languageData, Label translation)
         {
             XmlElement labelElement = languageData.XmlDocument.SelectSingleNode($"//doc:trans-unit[@id='{translation.ID}']", languageData.NamespaceManager) as XmlElement;
@@ -62,8 +77,43 @@ namespace label_translator.Engine
                 try
                 {
                     var targetElement = labelElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "target");
+                    if (null == targetElement)
+                    {
+                        targetElement = languageData.XmlDocument.CreateElement("target");
+                        labelElement.AppendChild(targetElement);
+                    }
                     targetElement.InnerXml = translation.Target;
                     targetElement.SetAttribute("state", "final");
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError($"Failed to set '{translation.Target}' as InnerXML for label {translation.ID} in language {language}: {ex.GetType().Name}; {ex.Message}");
+                    // Trace.TraceInformation($"{ex}");
+                }
+            }
+            else
+            {
+                Trace.TraceInformation($"I have a translation for label {translation.ID} in language {language} but I can't find the XML element. Adding missing label.");
+
+                AddAdditionalLabelToXlfDocument(languageData, translation);
+            }
+        }
+
+        private static void OverwriteLabelSource(string language, LanguageData languageData, Label translation)
+        {
+
+            XmlElement labelElement = languageData.XmlDocument.SelectSingleNode($"//doc:trans-unit[@id='{translation.ID}']", languageData.NamespaceManager) as XmlElement;
+            if (null != labelElement)
+            {
+                try
+                {
+                    var targetElement = labelElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "source");
+                    if (null == targetElement)
+                    {
+                        targetElement = languageData.XmlDocument.CreateElement("source");
+                        labelElement.AppendChild(targetElement);
+                    }
+                    targetElement.InnerXml = translation.Source;
                 }
                 catch (Exception ex)
                 {

@@ -30,10 +30,10 @@ namespace label_translator.Engine
                 label.ID = labelElement.GetAttribute("id");
 
                 var sourceElement = labelElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "source");
-                label.Source = sourceElement?.InnerXml.Replace($" xmlns=\"{languageData.XmlDocument.DocumentElement.NamespaceURI}\"", "");
+                label.Source = sourceElement?.InnerXml.Replace($" xmlns=\"{languageData.XmlDocument.DocumentElement.NamespaceURI}\"", "")?.Trim();
 
                 var targetElement = labelElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.Name == "target");
-                label.Target = targetElement?.InnerXml.Replace($" xmlns=\"{languageData.XmlDocument.DocumentElement.NamespaceURI}\"", "");
+                label.Target = targetElement?.InnerXml.Replace($" xmlns=\"{languageData.XmlDocument.DocumentElement.NamespaceURI}\"", "")?.Trim();
 
                 if (!string.IsNullOrWhiteSpace(label.Source) && !string.IsNullOrWhiteSpace(label.ID))
                 {
