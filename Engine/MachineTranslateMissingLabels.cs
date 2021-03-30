@@ -48,8 +48,8 @@ namespace label_translator.Engine
 
                 string translationResult = Translate(options, mockHtml, options.SourceLanguage, languageCode);
 
-                translationResult = Regex.Replace(translationResult, @"<span\s*class=[""]\s*ESCAPED_([0-9])\s*[""]\s*>[^<]*</span>", (me) => $"#{me.Groups[1].Value}#", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                translationResult = Regex.Replace(translationResult, @"<body>(.*)</body>$", (me) => $"{me.Groups[1].Value}", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                translationResult = Regex.Replace(translationResult, @"<span\s*class=[""]\s*ESCAPED_([0-9])\s*[""]\s*>[^<]*</span>", (me) => $"#{me.Groups[1].Value}#", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                translationResult = Regex.Replace(translationResult, @"<body>(.*)</body>", (me) => $"{me.Groups[1].Value}", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
                 label.Target = translationResult;
             }

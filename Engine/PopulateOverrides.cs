@@ -57,6 +57,11 @@ namespace label_translator.Engine
                     if (!string.IsNullOrWhiteSpace(target))
                     {
                         Label label = languageData.Labels[id];
+                        // Work around issue with old versions of this code that would erroneously insert <body> in the target labels.
+                        if (Regex.IsMatch(target, @"<body>(.*)</body>", RegexOptions.IgnoreCase | RegexOptions.Singleline))
+                        {
+                            target = Regex.Replace(target, @"<body>(.*)</body>", (me) => $"{me.Groups[1].Value}", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                        }
                         label.Target = target;
                         label.HasOverrideInExcelFile = true;
                         count++;
