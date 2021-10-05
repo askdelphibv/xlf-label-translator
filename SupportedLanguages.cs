@@ -34,6 +34,9 @@ namespace label_translator
         public const string BahasaIndonesia = "id-ID";
         public const string Hindi = "hi-IN";
         public const string Filipino = "fil-PH";
+        public const string Urdu = "ur-PK";
+        public const string Bengali = "bn-BD";
+        public const string Korean = "ko-KR";
 
         public static readonly Dictionary<string, string> LanguageTable = new Dictionary<string, string>
         {
@@ -63,6 +66,9 @@ namespace label_translator
             { SupportedLanguages.BahasaIndonesia, "id" },
             { SupportedLanguages.Hindi, "hi" },
             { SupportedLanguages.Filipino, "fil" },
+            { SupportedLanguages.Urdu, "ur" },
+            { SupportedLanguages.Bengali, "bn" },
+            { SupportedLanguages.Korean, "ko" },
         };
     }
 }
